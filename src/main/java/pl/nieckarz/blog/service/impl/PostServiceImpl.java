@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.nieckarz.blog.dao.entity.Post;
 import pl.nieckarz.blog.dao.repository.PostRepository;
+import pl.nieckarz.blog.exception.ResourceNotFoundException;
 import pl.nieckarz.blog.payload.PostDto;
 import pl.nieckarz.blog.service.PostService;
 
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService {
 
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
 
     @Autowired
     public PostServiceImpl(PostRepository postRepository) {
@@ -27,12 +28,9 @@ public class PostServiceImpl implements PostService {
 
         Post newPost = postRepository.save(post);
 
-
         //convert entity to Dto
-        PostDto postResponse = mapToDto(newPost);
 
-
-        return postResponse;
+        return mapToDto(newPost);
     }
 
     @Override
@@ -41,7 +39,32 @@ public class PostServiceImpl implements PostService {
         List<Post> posts = postRepository.findAll();
 
         return posts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+    }
 
+    @Override
+    public PostDto getPostById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+
+        return mapToDto(post);
+    }
+
+    @Override
+    public PostDto updatePostById(PostDto postDto, Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+
+        post.setTitle(postDto.getTitle());
+        post.setContent(postDto.getContent());
+        post.setDescription(postDto.getDescription());
+        Post updatedPost = postRepository.save(post);
+
+        return mapToDto(updatedPost);
+
+    }
+
+    @Override
+    public void deletePostById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        postRepository.delete(post);
     }
 
     //    convert entity to dto
@@ -64,6 +87,5 @@ public class PostServiceImpl implements PostService {
         post.setDescription(postDto.getDescription());
 
         return post;
-
     }
 }

@@ -10,4 +10,10 @@ public interface PostService {
     PostDto createPost(PostDto postDto);
 
     List<PostDto> getAllPosts();
+
+    PostDto getPostById(Long id);
+
+    PostDto updatePostById(PostDto postDto, Long id);
+
+    void deletePostById(Long id);
 }
