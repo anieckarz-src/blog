@@ -1,5 +1,6 @@
 package pl.nieckarz.blog.service.impl;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +22,11 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
 
+    private ModelMapper mapper;
+
     @Autowired
-    public PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(PostRepository postRepository,ModelMapper mapper) {
+        this.mapper = mapper;
         this.postRepository = postRepository;
     }
 
@@ -43,7 +47,7 @@ public class PostServiceImpl implements PostService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize,sort);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         Page<Post> posts = postRepository.findAll(pageable);
 
@@ -90,23 +94,12 @@ public class PostServiceImpl implements PostService {
 
     //    convert entity to dto
     private PostDto mapToDto(Post post) {
-        PostDto postDto = new PostDto();
-        postDto.setId(post.getId());
-        postDto.setDescription(post.getDescription());
-        postDto.setTitle(post.getTitle());
-        postDto.setContent(post.getContent());
 
-        return postDto;
+        return mapper.map(post, PostDto.class);
     }
 
     //convert dto to entity
     private Post mapToEntity(PostDto postDto) {
-
-        Post post = new Post();
-        post.setTitle(postDto.getTitle());
-        post.setContent(postDto.getContent());
-        post.setDescription(postDto.getDescription());
-
-        return post;
+        return mapper.map(postDto,Post.class);
     }
 }
