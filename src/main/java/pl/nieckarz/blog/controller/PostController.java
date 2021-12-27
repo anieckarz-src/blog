@@ -11,6 +11,8 @@ import pl.nieckarz.blog.payload.PostResponse;
 import pl.nieckarz.blog.service.PostService;
 import pl.nieckarz.blog.utils.AppConstants;
 
+import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/posts")
@@ -24,7 +26,7 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto) {
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
 
     }
@@ -45,7 +47,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> updatePostById(@RequestBody PostDto postDto, @PathVariable(name = "id") Long id) {
+    public ResponseEntity<PostDto> updatePostById(@Valid @RequestBody PostDto postDto, @PathVariable(name = "id") Long id) {
 
         return ResponseEntity.ok(postService.updatePostById(postDto, id));
     }
